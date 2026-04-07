@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="slides-format" content="viewport">
+  <title>Principios de DevOps</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-bg: #0A0A0A;
+      --color-bg-deep: #111111;
+      --color-surface: #171717;
+      --color-text: #F5F5F5;
+      --color-text-secondary: #D4D4D4;
+      --color-text-muted: #A3A3A3;
+      --color-accent-1: #00FF41;
+      --color-accent-2: #FFA500;
+      --color-accent-3: #FF3B30;
+      --color-glass-bg: rgba(0,255,65,0.05);
+      --color-glass-border: rgba(0,255,65,0.14);
+      --color-vignette: rgba(0,0,0,0.45);
+      --font-display: 'JetBrains Mono', monospace;
+      --font-body: 'Inter', sans-serif;
+    }
+  </style>
+  <style>
+    :root { --color-bg: #0A0A0A; --color-text: #F5F5F5; --glow-color-rgb: 0,255,65; }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { background: var(--color-bg); margin: 0; }
+    body { font-family: var(--font-body); color: var(--color-text); overflow: hidden; height: 100vh; width: 100vw; }
+    .deck { width: 100vw; height: 100vh; position: relative; }
+    .slide { position: absolute; inset: 0; background: var(--color-bg); display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0; transform:scale(0.95); transition:opacity .7s ease, transform .7s ease; pointer-events:none; overflow:hidden; }
+    .slide.active { opacity:1; transform:scale(1); pointer-events:all; }
+    .slide > .content { position:relative; z-index:2; width:100%; max-width:1140px; padding:clamp(1.5rem,4vw,4rem); }
+    .nav-controls { position:fixed; bottom:28px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:16px; z-index:100; background:var(--color-glass-bg); backdrop-filter:blur(10px); padding:10px 22px; border-radius:40px; border:1px solid var(--color-glass-border); }
+    .nav-btn { width:40px; height:40px; border:none; background:var(--color-glass-bg); color:#00FF41; border-radius:50%; font-size:1.2rem; cursor:pointer; }
+    .slide-dots { display:flex; gap:8px; }
+    .slide-dots .dot { width:10px; height:10px; border-radius:50%; background:var(--color-glass-border); cursor:pointer; transition:background .3s, transform .3s; }
+    .slide-dots .dot.active { background:#00FF41; transform:scale(1.25); }
+    .slide-counter { font-size:.8rem; color:#A3A3A3; min-width:50px; text-align:center; }
+    .reveal { opacity:0; transform:translateY(20px); }
+    @keyframes float-slow { 0%{transform:translate(0,0) scale(1)} 25%{transform:translate(50px,-40px) scale(1.1)} 50%{transform:translate(-35px,30px) scale(.92)} 75%{transform:translate(40px,20px) scale(1.05)} 100%{transform:translate(0,0) scale(1)} }
+    @keyframes float-drift { 0%{transform:translate(0,0) scale(1)} 33%{transform:translate(-40px,-50px) scale(1.12)} 66%{transform:translate(30px,25px) scale(.9)} 100%{transform:translate(0,0) scale(1)} }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+    .gradient-mesh { position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+    .blob { position:absolute; border-radius:50%; filter:blur(80px); animation:float-slow 11s ease-in-out infinite; }
+    .blob:nth-child(2) { animation:float-drift 14s ease-in-out infinite; }
+    .blob:nth-child(3) { animation:float-slow 18s ease-in-out infinite reverse; }
+    .slide::before { content:''; position:absolute; inset:0; z-index:1; pointer-events:none; background-image:linear-gradient(rgba(0,255,65,0.05) 1px, transparent 1px),linear-gradient(90deg, rgba(0,255,65,0.05) 1px, transparent 1px); background-size:40px 40px; opacity:.2; }
+    .slide::after { content:''; position:absolute; inset:0; z-index:1; pointer-events:none; background:radial-gradient(ellipse at center, transparent 50%, var(--color-vignette) 100%); }
+    .text-glow { text-shadow:0 0 20px rgba(var(--glow-color-rgb),.45), 0 0 40px rgba(var(--glow-color-rgb),.18); }
+    .stat-glow { text-shadow:0 0 28px rgba(var(--glow-color-rgb),.55), 0 0 58px rgba(var(--glow-color-rgb),.2); }
+    .terminal-card { background:rgba(10,10,10,.68); border:1px solid rgba(0,255,65,.14); box-shadow:inset 0 1px 0 rgba(255,255,255,.03), 0 0 0 1px rgba(0,255,65,.04); backdrop-filter:blur(10px); }
+    .bar-track { height:26px; border-radius:999px; background:rgba(255,255,255,.05); overflow:hidden; border:1px solid rgba(255,255,255,.06); }
+    .bar-fill { height:100%; width:0; border-radius:999px; background:linear-gradient(90deg, #00FF41, #FFA500); }
+    .code-line { font-family:'JetBrains Mono', monospace; color:#D4D4D4; }
+    .metric-box { min-height:180px; }
+    .alert-pill { border:1px solid rgba(255,165,0,.3); background:rgba(255,165,0,.08); }
+    .sec-pill { border:1px solid rgba(255,59,48,.35); background:rgba(255,59,48,.08); }
+    .good-pill { border:1px solid rgba(0,255,65,.35); background:rgba(0,255,65,.08); }
+    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.2s !important; } }
+  </style>
+</head>
+<body>
+<div class="mouse-spotlight" style="position:fixed; inset:0; z-index:99; pointer-events:none;"></div>
+<div class="deck">
+  <div class="slide slide-1 active" data-slide="1">
+    <div class="gradient-mesh">
+      <div class="blob" style="width:460px;height:460px;top:-90px;right:-80px;background:#00FF41;opacity:.13"></div>
+      <div class="blob" style="width:280px;height:280px;bottom:-70px;left:-60px;background:#FFA500;opacity:.11"></div>
+      <div class="blob" style="width:210px;height:210px;top:42%;left:18%;background:#FF3B30;opacity:.08"></div>
+    </div>
+    <canvas class="particle-canvas" style="position:absolute; inset:0; z-index:1;"></canvas>
+    <div class="content text-center">
+      <div class="text-[120px] mb-5 animate-[float_3s_ease-in-out_infinite] reveal">⚙️</div>
+      <h1 class="font-display text-[clamp(2.5rem,6vw,5rem)] font-black bg-linear-to-br from-accent-1 via-accent-2 to-accent-1 bg-clip-text text-transparent tracking-tight mb-4 reveal">Principios de DevOps</h1>
+      <p class="text-[clamp(0.9rem,1.5vw,1.3rem)] font-light text-text-muted tracking-[6px] uppercase reveal">Automatización, colaboración, seguridad y observabilidad en AWS</p>
+    </div>
+  </div>
+
+  <div class="slide slide-2" data-slide="2">
+    <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-60px;right:-70px;background:#00FF41;opacity:.08"></div><div class="blob" style="width:240px;height:240px;bottom:-50px;left:-50px;background:#FFA500;opacity:.06"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold text-glow reveal">Agenda</h2>
+      <div class="grid grid-cols-2 gap-6 mt-8">
+        <div class="terminal-card rounded-2xl p-6 reveal"><div class="text-accent-2 font-display text-xl mb-2">01</div><h3 class="font-semibold text-xl mb-2">Fundamentos DevOps</h3><p class="text-text-secondary">Cultura, flujo continuo y responsabilidad compartida entre desarrollo y operaciones.</p></div>
+        <div class="terminal-card rounded-2xl p-6 reveal"><div class="text-accent-2 font-display text-xl mb-2">02</div><h3 class="font-semibold text-xl mb-2">Automatización</h3><p class="text-text-secondary">Terraform, Ansible y CI/CD para reducir tareas manuales y errores repetitivos.</p></div>
+        <div class="terminal-card rounded-2xl p-6 reveal"><div class="text-accent-2 font-display text-xl mb-2">03</div><h3 class="font-semibold text-xl mb-2">Colaboración y Agile</h3><p class="text-text-secondary">Equipos multifuncionales, integración continua y ciclos cortos de entrega.</p></div>
+        <div class="terminal-card rounded-2xl p-6 reveal"><div class="text-accent-2 font-display text-xl mb-2">04</div><h3 class="font-semibold text-xl mb-2">Medición y seguridad</h3><p class="text-text-secondary">CloudWatch, SonarQube, pruebas automatizadas y CodePipeline para despliegues confiables.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-3" data-slide="3">
+    <div class="gradient-mesh"><div class="blob" style="width:350px;height:350px;top:-90px;left:-70px;background:#00FF41;opacity:.07"></div><div class="blob" style="width:260px;height:260px;bottom:-60px;right:-30px;background:#FF3B30;opacity:.06"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold reveal">¿Qué es DevOps?</h2>
+      <div class="grid grid-cols-3 gap-6 mt-8">
+        <div class="terminal-card rounded-2xl p-6 reveal"><div class="text-4xl mb-4">🤝</div><h3 class="font-display text-lg mb-3">Cultura compartida</h3><p class="text-text-secondary">Desarrollo, operaciones y seguridad colaboran sobre objetivos comunes, no en silos separados.</p></div>
+        <div class="terminal-card rounded-2xl p-6 reveal"><div class="text-4xl mb-4">♻️</div><h3 class="font-display text-lg mb-3">Entrega continua</h3><p class="text-text-secondary">Los cambios pequeños pasan por integración, pruebas y despliegue de forma frecuente.</p></div>
+        <div class="terminal-card rounded-2xl p-6 reveal"><div class="text-4xl mb-4">📈</div><h3 class="font-display text-lg mb-3">Retroalimentación</h3><p class="text-text-secondary">Las métricas, logs y alertas permiten aprender rápido y ajustar el sistema en producción.</p></div>
+      </div>
+      <div class="terminal-card rounded-2xl p-6 mt-6 reveal">
+        <p class="text-lg text-text-secondary">DevOps busca acelerar la entrega de software sin sacrificar estabilidad, usando automatización, colaboración y observabilidad como pilares del ciclo de vida.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-4" data-slide="4">
+    <div class="gradient-mesh"><div class="blob" style="width:420px;height:420px;top:-110px;right:-120px;background:#00FF41;opacity:.1"></div><div class="blob" style="width:220px;height:220px;bottom:0;left:8%;background:#FFA500;opacity:.08"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold reveal">Automatización: menos trabajo manual</h2>
+      <div class="grid grid-cols-2 gap-6 mt-8">
+        <div class="terminal-card rounded-2xl p-7 reveal">
+          <h3 class="font-display text-xl mb-4 text-accent-1">Infraestructura y configuración</h3>
+          <ul class="space-y-3 text-text-secondary text-lg">
+            <li>• <span class="text-white font-semibold">Terraform</span> define VPC, instancias, redes y permisos como código reutilizable.</li>
+            <li>• <span class="text-white font-semibold">Ansible</span> automatiza instalación, configuración, aprovisionamiento y cambios repetibles.</li>
+            <li>• La estandarización reduce diferencias entre ambientes de desarrollo, pruebas y producción.</li>
+          </ul>
+        </div>
+        <div class="terminal-card rounded-2xl p-7 reveal">
+          <h3 class="font-display text-xl mb-4 text-accent-2">Entrega continua</h3>
+          <ul class="space-y-3 text-text-secondary text-lg">
+            <li>• Los pipelines CI/CD compilan, prueban y despliegan con cada cambio.</li>
+            <li>• Se eliminan tareas manuales como empaquetar artefactos, copiar archivos o ejecutar scripts a mano.</li>
+            <li>• Menos intervención humana significa menos errores y tiempos de entrega más cortos.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="terminal-card rounded-2xl p-6 mt-6 reveal">
+        <div class="code-line">git push → build automático → pruebas → análisis → despliegue controlado</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-5" data-slide="5">
+    <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-80px;right:-70px;background:#FF3B30;opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-70px;left:-50px;background:#00FF41;opacity:.08"></div></div>
+    <canvas class="particle-canvas-ambient" style="position:absolute; inset:0; z-index:1;"></canvas>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold reveal">Agile une desarrollo y operaciones</h2>
+      <div class="grid grid-cols-2 gap-6 mt-8">
+        <div class="terminal-card rounded-2xl p-7 reveal">
+          <h3 class="font-display text-xl mb-4">Cómo ayuda Agile</h3>
+          <div class="flex flex-col gap-4">
+            <div class="good-pill rounded-xl p-4">Sprints cortos para entregar valor incremental y detectar problemas temprano.</div>
+            <div class="good-pill rounded-xl p-4">Backlogs compartidos para alinear prioridades técnicas, operativas y de negocio.</div>
+            <div class="good-pill rounded-xl p-4">Retrospectivas para mejorar procesos, tiempos de respuesta y calidad del flujo.</div>
+          </div>
+        </div>
+        <div class="terminal-card rounded-2xl p-7 reveal">
+          <h3 class="font-display text-xl mb-4">Resultado cultural</h3>
+          <div class="flex flex-col gap-4 text-text-secondary">
+            <div class="rounded-xl border border-glass-border p-4">Responsabilidad compartida sobre despliegues, incidentes y experiencia del usuario.</div>
+            <div class="rounded-xl border border-glass-border p-4">Feedback continuo entre desarrolladores, QA, seguridad y operaciones.</div>
+            <div class="rounded-xl border border-glass-border p-4">Mayor integración porque todos trabajan sobre un mismo flujo y métricas visibles.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-6" data-slide="6">
+    <div class="gradient-mesh"><div class="blob" style="width:360px;height:360px;top:-90px;left:-80px;background:#00FF41;opacity:.09"></div><div class="blob" style="width:260px;height:260px;bottom:-60px;right:-60px;background:#FFA500;opacity:.07"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold reveal">CloudWatch: métricas, logs y alertas</h2>
+      <div class="grid grid-cols-4 gap-5 mt-8">
+        <div class="terminal-card rounded-2xl p-5 metric-box reveal"><div class="text-3xl mb-3">📊</div><div class="text-4xl font-black stat-glow mb-2">CPU</div><div class="uppercase tracking-[3px] text-text-muted text-sm">Uso de recursos</div><p class="text-text-secondary mt-3">Registra consumo, memoria, latencia y salud de servicios.</p></div>
+        <div class="terminal-card rounded-2xl p-5 metric-box reveal"><div class="text-3xl mb-3">🧾</div><div class="text-4xl font-black stat-glow mb-2">Logs</div><div class="uppercase tracking-[3px] text-text-muted text-sm">Trazabilidad</div><p class="text-text-secondary mt-3">Centraliza eventos de aplicaciones, pipelines y componentes AWS.</p></div>
+        <div class="terminal-card rounded-2xl p-5 metric-box reveal"><div class="text-3xl mb-3">⏱️</div><div class="text-4xl font-black stat-glow mb-2">Tiempo</div><div class="uppercase tracking-[3px] text-text-muted text-sm">Rendimiento</div><p class="text-text-secondary mt-3">Permite ver duración de builds, fallas y cuellos de botella.</p></div>
+        <div class="terminal-card rounded-2xl p-5 metric-box reveal"><div class="text-3xl mb-3">🚨</div><div class="text-4xl font-black stat-glow mb-2">Alarmas</div><div class="uppercase tracking-[3px] text-text-muted text-sm">Respuesta</div><p class="text-text-secondary mt-3">Dispara notificaciones cuando un umbral sale del rango esperado.</p></div>
+      </div>
+      <div class="terminal-card rounded-2xl p-6 mt-6 reveal">
+        <p class="text-lg text-text-secondary">Con monitoreo continuo, el equipo detecta degradaciones, registra evidencias y responde más rápido antes de que el usuario final perciba la falla.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-7" data-slide="7">
+    <div class="gradient-mesh"><div class="blob" style="width:340px;height:340px;top:-60px;right:-80px;background:#FFA500;opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-50px;left:-50px;background:#00FF41;opacity:.07"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold reveal">DevSecOps con SonarQube</h2>
+      <div class="grid grid-cols-3 gap-6 mt-8">
+        <div class="terminal-card rounded-2xl p-6 reveal"><div class="text-4xl mb-4">🔍</div><h3 class="font-display text-lg mb-3">Escaneo temprano</h3><p class="text-text-secondary">SonarQube analiza código fuente durante CI para encontrar bugs, vulnerabilidades y code smells.</p></div>
+        <div class="terminal-card rounded-2xl p-6 reveal"><div class="text-4xl mb-4">🛡️</div><h3 class="font-display text-lg mb-3">Puertas de calidad</h3><p class="text-text-secondary">El pipeline puede bloquear promociones cuando el análisis no cumple las reglas definidas.</p></div>
+        <div class="terminal-card rounded-2xl p-6 reveal"><div class="text-4xl mb-4">📉</div><h3 class="font-display text-lg mb-3">Menor riesgo</h3><p class="text-text-secondary">Corregir hallazgos antes del despliegue es más barato y reduce exposición en producción.</p></div>
+      </div>
+      <div class="grid grid-cols-2 gap-6 mt-6">
+        <div class="sec-pill rounded-xl p-5 reveal">Integrar seguridad al pipeline evita tratarla como una fase aislada al final del proyecto.</div>
+        <div class="alert-pill rounded-xl p-5 reveal">DevSecOps convierte la seguridad en una práctica continua, automática y verificable.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-8" data-slide="8">
+    <div class="gradient-mesh"><div class="blob" style="width:380px;height:380px;top:-100px;left:-80px;background:#00FF41;opacity:.1"></div><div class="blob" style="width:250px;height:250px;bottom:-40px;right:-40px;background:#FFA500;opacity:.07"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold reveal">CodePipeline optimiza el despliegue</h2>
+      <div class="grid grid-cols-2 gap-6 mt-8">
+        <div class="terminal-card rounded-2xl p-7 reveal">
+          <h3 class="font-display text-xl mb-4 text-accent-1">Pipeline típico</h3>
+          <div class="flex flex-col gap-4 text-lg">
+            <div class="rounded-xl border border-glass-border p-4">1. Source: recibe cambios desde el repositorio.</div>
+            <div class="rounded-xl border border-glass-border p-4">2. Build/Test: ejecuta compilación, pruebas y análisis.</div>
+            <div class="rounded-xl border border-glass-border p-4">3. Deploy: promueve artefactos hacia QA, staging o producción.</div>
+          </div>
+        </div>
+        <div class="terminal-card rounded-2xl p-7 reveal">
+          <h3 class="font-display text-xl mb-4 text-accent-2">Beneficios</h3>
+          <ul class="space-y-3 text-text-secondary text-lg">
+            <li>• Menor tiempo entre commit y entrega.</li>
+            <li>• Flujo repetible, auditable y con menos intervención manual.</li>
+            <li>• Integración con eventos, logs y métricas para detectar fallas por etapa.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="terminal-card rounded-2xl p-6 mt-6 reveal"><div class="code-line">commit → CodePipeline → CodeBuild/escaneo → aprobación opcional → despliegue</div></div>
+    </div>
+  </div>
+
+  <div class="slide slide-9" data-slide="9">
+    <div class="gradient-mesh"><div class="blob" style="width:330px;height:330px;top:-80px;right:-70px;background:#FF3B30;opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-70px;left:-50px;background:#00FF41;opacity:.07"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold reveal">Pruebas automatizadas = mayor confiabilidad</h2>
+      <div class="grid grid-cols-3 gap-6 mt-8">
+        <div class="terminal-card rounded-2xl p-6 reveal"><h3 class="font-display text-lg mb-3">Unitarias</h3><p class="text-text-secondary">Validan funciones y componentes aislados para detectar fallas desde etapas tempranas.</p></div>
+        <div class="terminal-card rounded-2xl p-6 reveal"><h3 class="font-display text-lg mb-3">Integración</h3><p class="text-text-secondary">Comprueban que servicios, bases de datos y APIs interactúan correctamente.</p></div>
+        <div class="terminal-card rounded-2xl p-6 reveal"><h3 class="font-display text-lg mb-3">End to End</h3><p class="text-text-secondary">Simulan recorridos reales del usuario y previenen regresiones antes del release.</p></div>
+      </div>
+      <div class="mt-8 grid grid-cols-[180px_1fr_80px] gap-4 items-center reveal"><div class="text-text-secondary font-semibold">Cobertura CI</div><div class="bar-track"><div class="bar-fill" data-width="85"></div></div><div class="text-accent-1 font-display">85%</div></div>
+      <div class="mt-4 grid grid-cols-[180px_1fr_80px] gap-4 items-center reveal"><div class="text-text-secondary font-semibold">Estabilidad release</div><div class="bar-track"><div class="bar-fill" data-width="92"></div></div><div class="text-accent-1 font-display">92%</div></div>
+      <div class="mt-4 grid grid-cols-[180px_1fr_80px] gap-4 items-center reveal"><div class="text-text-secondary font-semibold">Errores manuales</div><div class="bar-track"><div class="bar-fill" data-width="25"></div></div><div class="text-accent-3 font-display">25%</div></div>
+    </div>
+  </div>
+
+  <div class="slide slide-10" data-slide="10">
+    <div class="gradient-mesh"><div class="blob" style="width:380px;height:380px;top:-100px;right:-90px;background:#00FF41;opacity:.1"></div><div class="blob" style="width:270px;height:270px;bottom:-60px;left:-40px;background:#FFA500;opacity:.08"></div><div class="blob" style="width:180px;height:180px;top:48%;left:20%;background:#FF3B30;opacity:.06"></div></div>
+    <canvas class="particle-canvas" style="position:absolute; inset:0; z-index:1;"></canvas>
+    <div class="content text-center">
+      <h2 class="font-display text-[clamp(2.2rem,5vw,3.6rem)] font-black bg-linear-to-br from-accent-1 via-accent-2 to-accent-1 bg-clip-text text-transparent mb-6 reveal">Monitoreo continuo = respuesta rápida</h2>
+      <div class="grid grid-cols-3 gap-6 mt-6 text-left">
+        <div class="terminal-card rounded-2xl p-6 reveal"><div class="text-4xl mb-4">📡</div><h3 class="font-display text-lg mb-3">Detectar</h3><p class="text-text-secondary">CloudWatch observa métricas, logs y eventos en tiempo real.</p></div>
+        <div class="terminal-card rounded-2xl p-6 reveal"><div class="text-4xl mb-4">🔔</div><h3 class="font-display text-lg mb-3">Alertar</h3><p class="text-text-secondary">Las alarmas notifican desvíos de CPU, errores o duración anómala del pipeline.</p></div>
+        <div class="terminal-card rounded-2xl p-6 reveal"><div class="text-4xl mb-4">⚡</div><h3 class="font-display text-lg mb-3">Actuar</h3><p class="text-text-secondary">El equipo reduce MTTR porque identifica antes el problema y su contexto.</p></div>
+      </div>
+      <p class="text-text-muted tracking-[5px] uppercase mt-8 reveal">DevOps no solo entrega más rápido; entrega con visibilidad, seguridad y control</p>
+    </div>
+  </div>
+</div>
+
+<div class="nav-controls" aria-label="Controles de navegación">
+  <button class="nav-btn" onclick="changeSlide(-1)" aria-label="Anterior">&#8249;</button>
+  <div class="slide-dots" id="dots"></div>
+  <button class="nav-btn" onclick="changeSlide(1)" aria-label="Siguiente">&#8250;</button>
+  <span class="slide-counter" id="counter">1 / 10</span>
+</div>
+
+<script>
+let current = 1;
+const total = document.querySelectorAll('.slide').length;
+const dotsContainer = document.getElementById('dots');
+const counter = document.getElementById('counter');
+for (let i = 1; i <= total; i++) { const dot = document.createElement('div'); dot.className = 'dot' + (i === 1 ? ' active' : ''); dot.onclick = () => goToSlide(i); dotsContainer.appendChild(dot); }
+function goToSlide(n){ const prev=document.querySelector('.slide.active'); const next=document.querySelector(`.slide[data-slide="${n}"]`); if(prev) prev.classList.remove('active'); if(next){ next.classList.add('active'); animateSlide(next);} current=n; updateNav(); }
+function changeSlide(dir){ let next=current+dir; if(next<1) next=total; if(next>total) next=1; goToSlide(next); }
+function updateNav(){ document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active', i+1===current)); counter.textContent = current + ' / ' + total; }
+document.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight' || e.key===' '){ e.preventDefault(); changeSlide(1);} if(e.key==='ArrowLeft'){ e.preventDefault(); changeSlide(-1);} });
+let touchStartX = 0;
+document.addEventListener('touchstart', (e)=>{ touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', (e)=>{ const diff = touchStartX - e.changedTouches[0].clientX; if(Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1); });
+function animateSlide(slide){ slide.querySelectorAll('.reveal').forEach((el,i)=>{ el.style.transition='none'; el.style.opacity='0'; el.style.transform='translateY(20px)'; el.offsetHeight; const delay=i*0.08; el.style.transition=`opacity .35s ease ${delay}s, transform .35s ease ${delay}s`; el.style.opacity='1'; el.style.transform='translateY(0px)'; }); animateSlideEffects(slide); }
+function animateSlideEffects(slide){ slide.querySelectorAll('.bar-fill:not(.fill-init)').forEach((bar,i)=>{ bar.classList.add('fill-init'); bar.style.width='0%'; bar.style.transition=`width .6s ease ${i*0.08}s`; bar.offsetHeight; bar.style.width = bar.dataset.width + '%'; }); }
+document.addEventListener('mousemove', (e)=>{ const spotlight=document.querySelector('.mouse-spotlight'); if(spotlight){ spotlight.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(0,255,65,.06), transparent 40%)`; } });
+window.initParticles = function(canvas, options){ if(!canvas) return; const ctx=canvas.getContext('2d'); canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight; const interactive = options.interactive !== false; const count = options.count || (interactive ? 55 : 18); let mx=-1000,my=-1000; const particles = Array.from({length:count}, ()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,size:Math.random()*2.5+.8,alpha:Math.random()*.35+.1})); if(interactive){ canvas.addEventListener('mousemove',(e)=>{ const rect=canvas.getBoundingClientRect(); mx=e.clientX-rect.left; my=e.clientY-rect.top;}); canvas.addEventListener('mouseleave',()=>{mx=-1000; my=-1000;}); }
+(function animate(){ ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{ if(interactive){ const dx=p.x-mx, dy=p.y-my, dist=Math.sqrt(dx*dx+dy*dy); if(dist<120){ const force=(120-dist)/120*2; p.vx += (dx/(dist||1))*force*.1; p.vy += (dy/(dist||1))*force*.1; } } p.vx*=.98; p.vy*=.98; p.x+=p.vx; p.y+=p.vy; if(p.x<0) p.x=canvas.width; if(p.x>canvas.width) p.x=0; if(p.y<0) p.y=canvas.height; if(p.y>canvas.height) p.y=0; ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fillStyle=`rgba(0,255,65,${p.alpha})`; ctx.fill(); }); requestAnimationFrame(animate); })(); };
+document.querySelectorAll('.particle-canvas').forEach(c=>window.initParticles(c,{interactive:true,count:55}));
+document.querySelectorAll('.particle-canvas-ambient').forEach(c=>window.initParticles(c,{interactive:false,count:18}));
+try { animateSlide(document.querySelector('.slide.active')); } catch(e) {}
+</script>
+</body>
+</html>
