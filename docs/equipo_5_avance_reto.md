@@ -14,6 +14,9 @@ Para abordar estos problemas, Soluciones Tecnológicas del Futuro ha decidido im
 ### 3. Configurar un entorno de desarrollo en Linux
    1. Instalar Ubuntu en una máquina virtual local o en una instancia AWS EC2 (solo tamaños nano, micro, small, medium o large).
    ![screenshot](imgs/1.png)
+   ```
+   ejemplo de bloque de código
+   ```
    2. Configurar paquetes esenciales: git, vim, docker, python3.
    3. Crear y ejecutar scripts Bash para automatizar tareas.
    4. Automatizar la instalación de dependencias.
