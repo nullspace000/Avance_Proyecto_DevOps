@@ -22,15 +22,57 @@ Para abordar estos problemas, Soluciones Tecnológicas del Futuro ha decidido im
    1. Instalar Ubuntu en una máquina virtual local o en una instancia AWS EC2 (solo tamaños nano, micro, small, medium o large).
    ![screenshot](imgs/1.png)
    2. Configurar paquetes esenciales: git, vim, docker, python3.
-   3. Crear y ejecutar scripts Bash para automatizar tareas.
-   4. Automatizar la instalación de dependencias.
-   5. Programar tareas con cron para limpieza de logs.  
+   3. Crear y ejecutar scripts Bash para automatizar tareas. 
+   ``` sudo apt update && sudo apt upgrade -y
+# Herramientas base
+sudo apt install -y git vim curl build-essential
+# Python 3 y pip
+sudo apt install -y python3 python3-pip python3-venv
+# Docker Engine (repositorio oficial)
+sudo apt install -y ca-certificates gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo \
+"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+https://download.docker.com/linux/ubuntu \
+$(lsb_release -cs) stable" | \
+sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io
+# Añadir tu usuario al grupo docker
+sudo usermod -aG docker "$USER"
+```
+   5. Automatizar la instalación de dependencias.
+   Crea un archivo bootstrap_dev.sh:
+   ```#!/usr/bin/env bash
+   set -euo pipefail
+   sudo apt update
+   sudo apt install -y git vim python3 python3-pip docker.io
+   echo "Instalación completa. 
+   ```
+   ![screenshot](imgs/3.png)
+   1. Programar tareas con cron para limpieza de logs.  
+      Crea un script clean_logs.shque elimine o rote logs antiguos
+      ``` #!/usr/bin/env bash
+      set -euo pipefail
+      LOG_DIR="/var/log/myapp"
+      DAYS_TO_KEEP=7
+      find "$LOG_DIR" -type f -name "*.log" -mtime +"$DAYS_TO_KEEP" -print -delete
+      ```
+   Programa una tarea cron para ejecutarlo, por ejemplo diariamente a las 03:30:
+      ```crontab -e
+      30 3 * * * /usr/local/bin/clean_logs.sh >> /var/log/clean_logs.cron.log 2>&1
+      ```
+      ![screenshot](imgs/4.png)
+
 
 ### 4. Desarrollar un script en Python para automatizar tareas
    1. Crear un script para aprovisionar instancias EC2 (máximo 9 instancias en total, respetando los límites de Learner Lab).
    2. Generar un reporte automático de uso de recursos.
    3. Utilizar Boto3 para interactuar con AWS.
-   4. Listar buckets en S3 y sus objetos.
+   4. ![screenshot](imgs/5.png)
+   5. Listar buckets en S3 y sus objetos.
 
 ### 5. Diseñar una plantilla CloudFormation
    1. Definir infraestructura en YAML para instancias EC2 y S3, asegurando que las instancias cumplan los límites del entorno.
