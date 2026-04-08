@@ -2,7 +2,6 @@ import boto3
 ec2 = boto3.resource("ec2")
 MAX_INSTANCES = 9
 #Este patrón usa el recurso EC2 de Boto3 para lanzar instancias y aplica el instance profile
-#preexistente de Learner Lab, tal como indican los materiales oficiales del laboratorio
 existing = list(ec2.instances.filter(
     Filters=[{"Name": "instance-state-name", "Values": ["pending", "running"]}],
 ))
