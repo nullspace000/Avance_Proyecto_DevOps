@@ -11,6 +11,13 @@ La empresa Soluciones Tecnológicas del Futuro es una organización de reciente 
 Para abordar estos problemas, Soluciones Tecnológicas del Futuro ha decidido implementar una plataforma automatizada de despliegue y monitoreo en AWS, adoptando prácticas de DevOps. El objetivo de este proyecto es optimizar los tiempos de entrega, mejorar la estabilidad de sus aplicaciones y garantizar la seguridad de la infraestructura en la nube para sus clientes.
 
 ## Procedimiento:  
+
+### 1. Elaborar una presentación que exponga los principios de DevOps
+   - nombre de la presentación: devops_principios.html
+
+### 2. Crear un repositorio en Github
+   ![screenshot](imgs/repo.png)
+
 ### 3. Configurar un entorno de desarrollo en Linux
    1. Instalar Ubuntu en una máquina virtual local o en una instancia AWS EC2 (solo tamaños nano, micro, small, medium o large).
    ![screenshot](imgs/1.png)
