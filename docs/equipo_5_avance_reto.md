@@ -20,7 +20,6 @@ Para abordar estos problemas, Soluciones Tecnológicas del Futuro ha decidido im
 
 ### 3. Configurar un entorno de desarrollo en Linux
    1. Instalar Ubuntu en una máquina virtual local o en una instancia AWS EC2 (solo tamaños nano, micro, small, medium o large).
-   ![screenshot](imgs/1.png)
    2. Configurar paquetes esenciales: git, vim, docker, python3.
    3. Crear y ejecutar scripts Bash para automatizar tareas. 
    ``` sudo apt update && sudo apt upgrade -y
@@ -70,7 +69,7 @@ sudo usermod -aG docker "$USER"
 ### 4. Desarrollar un script en Python para automatizar tareas
    1. Crear las claves de acceso IAM para poder hacer uso de los script
    ![screenshot](imgs/7.png)
-   Configurar los datos en el EC2
+   Configurar los datos en el EC2  
    ![screenshot](imgs/8.png)
    3. Crear un script para aprovisionar instancias EC2 (máximo 9 instancias en total, respetando los límites de Learner Lab).
    saber el AMI del EC2 para poder hacer la creacion
@@ -79,7 +78,7 @@ sudo usermod -aG docker "$USER"
    ![screenshot](imgs/10.png)
    ![screenshot](imgs/11.png)
    4. Generar un reporte automático de uso de recursos.
-   ![alt text](image-1.png)
+   ![alt text](imags/1.png)
    5. Utilizar Boto3 para interactuar con AWS.
    ![screenshot](imgs/5.png)
    6. Listar buckets en S3 y sus objetos.
