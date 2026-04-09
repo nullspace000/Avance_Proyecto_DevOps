@@ -9,8 +9,6 @@ Parameters:
       - t3.nano
       - t3.micro
       - t3.small
-      - t3.medium
-      - t3.large
     Description: Tipo de instancia EC2 permitido
 
   AmiId:
@@ -44,8 +42,8 @@ Resources:
 
 Outputs:
   BucketName:
-    Description: Nombre del bucket S3
+    Description: bucket S3
     Value: !Ref DevBucket
-  Instance1Id:
-    Description: ID de la primera instancia
+  Instance1Id:  
+    Description: i-0e766095f0ac1f7f0
     Value: !Ref DevInstance1
