@@ -78,7 +78,7 @@ sudo usermod -aG docker "$USER"
    ![screenshot](imgs/10.png)
    ![screenshot](imgs/11.png)
    4. Generar un reporte automático de uso de recursos.
-   ![alt text](imags/1.png)
+   ![alt text](imgs/image-1.png)
    5. Utilizar Boto3 para interactuar con AWS.
    ![screenshot](imgs/5.png)
    6. Listar buckets en S3 y sus objetos.
