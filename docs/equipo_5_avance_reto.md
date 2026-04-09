@@ -68,11 +68,20 @@ sudo usermod -aG docker "$USER"
 
 
 ### 4. Desarrollar un script en Python para automatizar tareas
-   1. Crear un script para aprovisionar instancias EC2 (máximo 9 instancias en total, respetando los límites de Learner Lab).
-   2. Generar un reporte automático de uso de recursos.
-   3. Utilizar Boto3 para interactuar con AWS.
-   4. ![screenshot](imgs/5.png)
-   5. Listar buckets en S3 y sus objetos.
+   1. Crear las claves de acceso IAM para poder hacer uso de los script
+   ![screenshot](imgs/7.png)
+   Configurar los datos en el EC2
+   ![screenshot](imgs/8.png)
+   3. Crear un script para aprovisionar instancias EC2 (máximo 9 instancias en total, respetando los límites de Learner Lab).
+   saber el AMI del EC2 para poder hacer la creacion
+   ![screenshot](imgs/9.png)
+   Correrlo
+   
+   4. Generar un reporte automático de uso de recursos.
+   5. Utilizar Boto3 para interactuar con AWS.
+   6. ![screenshot](imgs/5.png)
+   7. Listar buckets en S3 y sus objetos.
+   8. ![screenshot](imgs/6.png)
 
 ### 5. Diseñar una plantilla CloudFormation
    1. Definir infraestructura en YAML para instancias EC2 y S3, asegurando que las instancias cumplan los límites del entorno.

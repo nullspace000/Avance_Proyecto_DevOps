@@ -10,7 +10,7 @@ if remaining <= 0:
     print("Límite de instancias alcanzado, no se lanzan nuevas instancias.")
 else:
     instances = ec2.create_instances(
-        ImageId="ami-xxxxxxxx", # Sustituir por AMI válida 
+        ImageId="ami-00de3875b03809ec5", 
         InstanceType="t3.micro",
         MinCount=1,
         MaxCount=remaining,
