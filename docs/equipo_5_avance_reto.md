@@ -87,10 +87,21 @@ sudo usermod -aG docker "$USER"
 
 ### 5. Diseñar una plantilla CloudFormation
    1. Definir infraestructura en YAML para instancias EC2 y S3, asegurando que las instancias cumplan los límites del entorno.
+   ![alt text](image-2.png)
    2. Aplicar políticas de IAM solo con el rol LabRole preexistente, ya que Learner Lab no permite crear nuevos roles o grupos.
+   #### No aplica ya que no es learner lab 
    3. Implementar recursos en AWS mediante IaC.
+   ```
+   aws cloudformation deploy \
+  --stack-name devops-stack \
+  --template-file stack-dev.yaml \
+  --parameter-overrides \
+    AmiId=ami-00de3875b03809ec5 \
+    InstanceType=t3.micro \
+  --region us-east-1
+   ```
    4. Desplegar y actualizar infraestructura con AWS CloudFormation deploy.
-
+   ![alt text](image.png)
 ### 6. Crear una imagen Docker para una aplicación web
    1. Definir un Dockerfile con configuración de nginx o flask.
    2. Optimizar la imagen con multi-stage builds.
