@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Stack dev: 1 bucket S3 y hasta 3 instancias EC2 t3.*'
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+      - t3.nano
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+    Description: Tipo de instancia EC2 permitido
+
+  AmiId:
+    Type: AWS::EC2::Image::Id
+    Description: AMI de Ubuntu para la región (por ejemplo, 22.04 en us-east-1)
+
+Resources:
+  DevBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+
+  DevInstance1:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: !Ref AmiId
+
+  DevInstance2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: !Ref AmiId
+
+  DevInstance3:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: !Ref AmiId
+
+Outputs:
+  BucketName:
+    Description: Nombre del bucket S3
+    Value: !Ref DevBucket
+  Instance1Id:
+    Description: ID de la primera instancia
+    Value: !Ref DevInstance1
