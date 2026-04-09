@@ -1,19 +1,23 @@
 import boto3
-ec2 = boto3.resource("ec2")
+
+ec2 = boto3.resource("ec2", region_name="us-east-1")
+
 MAX_INSTANCES = 9
-#Este patrón usa el recurso EC2 de Boto3 para lanzar instancias y aplica el instance profile
+
 existing = list(ec2.instances.filter(
     Filters=[{"Name": "instance-state-name", "Values": ["pending", "running"]}],
 ))
+
 remaining = MAX_INSTANCES - len(existing)
+
 if remaining <= 0:
     print("Límite de instancias alcanzado, no se lanzan nuevas instancias.")
 else:
     instances = ec2.create_instances(
-        ImageId="ami-00de3875b03809ec5", 
+        ImageId="ami-XXXXXXXXXXXXXXX",  # AMI real de Ubuntu que ya obtuviste
         InstanceType="t3.micro",
         MinCount=1,
         MaxCount=remaining,
-        IamInstanceProfile={"Name": "LabInstanceProfile"},
-)
-print(f"Lanzadas {len(instances)} instancias nuevas.")
+        # OJO: sin IamInstanceProfile aquí
+    )
+    print(f"Lanzadas {len(instances)} instancias nuevas.")
