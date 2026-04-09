@@ -14,7 +14,7 @@ if remaining <= 0:
     print("Límite de instancias alcanzado, no se lanzan nuevas instancias.")
 else:
     instances = ec2.create_instances(
-        ImageId="ami-XXXXXXXXXXXXXXX",  # AMI real de Ubuntu que ya obtuviste
+        ImageId="ami-00de3875b03809ec5",  # AMI real de Ubuntu que ya obtuviste
         InstanceType="t3.micro",
         MinCount=1,
         MaxCount=remaining,
