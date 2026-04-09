@@ -76,12 +76,14 @@ sudo usermod -aG docker "$USER"
    saber el AMI del EC2 para poder hacer la creacion
    ![screenshot](imgs/9.png)
    Correrlo
-   
+   ![screenshot](imgs/10.png)
+   ![screenshot](imgs/11.png)
    4. Generar un reporte automático de uso de recursos.
+   ![alt text](image-1.png)
    5. Utilizar Boto3 para interactuar con AWS.
-   6. ![screenshot](imgs/5.png)
-   7. Listar buckets en S3 y sus objetos.
-   8. ![screenshot](imgs/6.png)
+   ![screenshot](imgs/5.png)
+   6. Listar buckets en S3 y sus objetos.
+   ![screenshot](imgs/6.png)
 
 ### 5. Diseñar una plantilla CloudFormation
    1. Definir infraestructura en YAML para instancias EC2 y S3, asegurando que las instancias cumplan los límites del entorno.
