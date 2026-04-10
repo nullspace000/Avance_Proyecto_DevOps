@@ -16,7 +16,9 @@ Para abordar estos problemas, Soluciones Tecnológicas del Futuro ha decidido im
    - nombre de la presentación: devops_principios.html
 
 ### 2. Crear un repositorio en Github
-   ![screenshot](imgs/repo.png)
+   `https://github.com/nullspace000/Avance_Proyecto_DevOps.git`  
+   
+   ![screenshot](imgs/repo.png)  
 
 ### 3. Configurar un entorno de desarrollo en Linux
    1. Instalar Ubuntu en una máquina virtual local o en una instancia AWS EC2 (solo tamaños nano, micro, small, medium o large).
