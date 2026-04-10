@@ -62,7 +62,7 @@ sudo usermod -aG docker "$USER"
    Programa una tarea cron para ejecutarlo, por ejemplo diariamente a las 03:30:
       ```crontab -e
       30 3 * * * /usr/local/bin/clean_logs.sh >> /var/log/clean_logs.cron.log 2>&1
-      ```
+      ```  
       ![screenshot](imgs/4.png)
 
 
@@ -86,7 +86,7 @@ sudo usermod -aG docker "$USER"
 
 ### 5. Diseñar una plantilla CloudFormation
    1. Definir infraestructura en YAML para instancias EC2 y S3, asegurando que las instancias cumplan los límites del entorno.  
-   ![alt text](image-2.png)
+   ![alt text](imgs/image-2.png)
    2. Aplicar políticas de IAM solo con el rol LabRole preexistente, ya que Learner Lab no permite crear nuevos roles o grupos.
    #### No aplica ya que no es learner lab 
    3. Implementar recursos en AWS mediante IaC.
@@ -100,7 +100,7 @@ sudo usermod -aG docker "$USER"
   --region us-east-1
    ```
    4. Desplegar y actualizar infraestructura con AWS CloudFormation deploy.  
-   ![alt text](image.png)  
+   ![alt text](imgs/image.png)  
 
 ### 6. Crear una imagen Docker para una aplicación web
    1. Definir un Dockerfile con configuración de nginx o flask.  
@@ -131,7 +131,8 @@ sudo usermod -aG docker "$USER"
       ```
 
    2. Optimizar la imagen con multi-stage builds.
-      - Tenemos stage 1 y 2  
+      - docker compose up --build
+      - tenemos stage 1 y stage 2
 
    3. Configurar docker-compose.yml para múltiples servicios.  
       docker-compose.yml:
@@ -170,6 +171,16 @@ sudo usermod -aG docker "$USER"
       redis_data:
       ```
    4. Definir volúmenes y redes personalizadas.
+      ```
+      [null@T480 avance_reto]$ sudo docker network ls
+      [sudo] password for null: 
+      NETWORK ID     NAME              DRIVER    SCOPE
+      08b7811756f4   bridge            bridge    local
+      ff7efc952609   docker_backend    bridge    local
+      32db7fe7059d   docker_frontend   bridge    local
+      0c6fa98669dc   host              host      local
+      0e8316485271   none              null      local
+      ```
 
 ### 7. Implementar un pipeline CI/CD con AWS CodeCommit
    1. Configurar CodeCommit y CodeBuild para pruebas automatizadas.
