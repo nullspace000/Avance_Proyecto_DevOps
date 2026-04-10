@@ -181,9 +181,13 @@ sudo usermod -aG docker "$USER"
       0c6fa98669dc   host              host      local
       0e8316485271   none              null      local
       ```
+      ![alt text](imgs/12.png)
 
 ### 7. Implementar un pipeline CI/CD con AWS CodeCommit
-   1. Configurar CodeCommit y CodeBuild para pruebas automatizadas.
+   1. Configurar CodeCommit y CodeBuild para pruebas automatizadas.  
+      - CodeCommit y CodeBuild no están accesibles en la capa gratuita de AWS.
+      - Al no tener acceso a los learner labs, no podemos continuar con esta parte del reto.
+      ![alt text](imgs/13.png)
    2. Integrar CodePipeline para despliegue continuo.
    3. Enviar archivos a EC2 utilizando AWS Systems Manager Session Manager.
    4. Usar AWS Lambda para automatizar rollback ante fallos.
