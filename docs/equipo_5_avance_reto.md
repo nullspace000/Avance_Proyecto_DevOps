@@ -100,7 +100,8 @@ sudo usermod -aG docker "$USER"
   --region us-east-1
    ```
    4. Desplegar y actualizar infraestructura con AWS CloudFormation deploy.  
-   ![alt text](image.png)
+   ![alt text](image.png)  
+
 ### 6. Crear una imagen Docker para una aplicación web
    1. Definir un Dockerfile con configuración de nginx o flask.  
    
@@ -129,6 +130,10 @@ sudo usermod -aG docker "$USER"
       CMD ["python", "app.py"]
       ```
 
+   2. Optimizar la imagen con multi-stage builds.
+      - Tenemos stage 1 y 2  
+
+   3. Configurar docker-compose.yml para múltiples servicios.  
       docker-compose.yml:
       ```
       version: '3.8'
@@ -164,9 +169,6 @@ sudo usermod -aG docker "$USER"
       volumes:
       redis_data:
       ```
-      
-   2. Optimizar la imagen con multi-stage builds.
-   3. Configurar docker-compose.yml para múltiples servicios.
    4. Definir volúmenes y redes personalizadas.
 
 ### 7. Implementar un pipeline CI/CD con AWS CodeCommit
