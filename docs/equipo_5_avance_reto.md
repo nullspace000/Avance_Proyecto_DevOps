@@ -72,20 +72,20 @@ sudo usermod -aG docker "$USER"
    Configurar los datos en el EC2  
    ![screenshot](imgs/8.png)
    3. Crear un script para aprovisionar instancias EC2 (máximo 9 instancias en total, respetando los límites de Learner Lab).
-   saber el AMI del EC2 para poder hacer la creacion
-   ![screenshot](imgs/9.png)
-   Correrlo
-   ![screenshot](imgs/10.png)
+   saber el AMI del EC2 para poder hacer la creacion  
+   ![screenshot](imgs/9.png)  
+   Correrlo  
+   ![screenshot](imgs/10.png)  
    ![screenshot](imgs/11.png)
-   4. Generar un reporte automático de uso de recursos.
+   4. Generar un reporte automático de uso de recursos.  
    ![alt text](imgs/image-1.png)
    5. Utilizar Boto3 para interactuar con AWS.
    ![screenshot](imgs/5.png)
-   6. Listar buckets en S3 y sus objetos.
+   6. Listar buckets en S3 y sus objetos.  
    ![screenshot](imgs/6.png)
 
 ### 5. Diseñar una plantilla CloudFormation
-   1. Definir infraestructura en YAML para instancias EC2 y S3, asegurando que las instancias cumplan los límites del entorno.
+   1. Definir infraestructura en YAML para instancias EC2 y S3, asegurando que las instancias cumplan los límites del entorno.  
    ![alt text](image-2.png)
    2. Aplicar políticas de IAM solo con el rol LabRole preexistente, ya que Learner Lab no permite crear nuevos roles o grupos.
    #### No aplica ya que no es learner lab 
@@ -99,10 +99,72 @@ sudo usermod -aG docker "$USER"
     InstanceType=t3.micro \
   --region us-east-1
    ```
-   4. Desplegar y actualizar infraestructura con AWS CloudFormation deploy.
+   4. Desplegar y actualizar infraestructura con AWS CloudFormation deploy.  
    ![alt text](image.png)
 ### 6. Crear una imagen Docker para una aplicación web
-   1. Definir un Dockerfile con configuración de nginx o flask.
+   1. Definir un Dockerfile con configuración de nginx o flask.  
+   
+      Dockerfile: 
+      ```
+      # Stage 1: Build (dependency instalation)
+      FROM python:3.11-slim AS builder
+
+      WORKDIR /app
+      COPY requirements.txt .
+      # Instalamos dependencias en un directorio local
+      RUN pip install --user --no-cache-dir -r requirements.txt
+
+      # Stage 2: Final (light image for exec)
+      FROM python:3.11-slim
+
+      WORKDIR /app
+      # Copiamos solo las dependencias instaladas y el código
+      COPY --from=builder /root/.local /root/.local
+      COPY . .
+
+      # Asegurar que el PATH incluya las librerías instaladas
+      ENV PATH=/root/.local/bin:$PATH
+
+      EXPOSE 5000
+      CMD ["python", "app.py"]
+      ```
+
+      docker-compose.yml:
+      ```
+      version: '3.8'
+
+      services:
+      web:
+         build: .
+         ports:
+            - "8080:5000"
+         volumes:
+            - ./app:/app  # Hot-reloading para desarrollo
+         networks:
+            - frontend
+            - backend
+         depends_on:
+            - db
+         environment:
+            - REDIS_HOST=db
+
+      db:
+         image: redis:alpine
+         networks:
+            - backend
+         volumes:
+            - redis_data:/data
+
+      networks:
+      frontend:
+         driver: bridge
+      backend:
+         internal: true  # Red aislada para seguridad
+
+      volumes:
+      redis_data:
+      ```
+      
    2. Optimizar la imagen con multi-stage builds.
    3. Configurar docker-compose.yml para múltiples servicios.
    4. Definir volúmenes y redes personalizadas.
