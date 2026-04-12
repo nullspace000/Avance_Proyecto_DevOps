@@ -16,7 +16,9 @@ Para abordar estos problemas, Soluciones Tecnológicas del Futuro ha decidido im
    - nombre de la presentación: devops_principios.html
 
 ### 2. Crear un repositorio en Github
-   ![screenshot](imgs/repo.png)
+   `https://github.com/nullspace000/Avance_Proyecto_DevOps.git`  
+   
+   ![screenshot](imgs/repo.png)  
 
 ### 3. Configurar un entorno de desarrollo en Linux
    1. Instalar Ubuntu en una máquina virtual local o en una instancia AWS EC2 (solo tamaños nano, micro, small, medium o large).
@@ -62,7 +64,7 @@ sudo usermod -aG docker "$USER"
    Programa una tarea cron para ejecutarlo, por ejemplo diariamente a las 03:30:
       ```crontab -e
       30 3 * * * /usr/local/bin/clean_logs.sh >> /var/log/clean_logs.cron.log 2>&1
-      ```
+      ```  
       ![screenshot](imgs/4.png)
 
 
@@ -72,21 +74,21 @@ sudo usermod -aG docker "$USER"
    Configurar los datos en el EC2  
    ![screenshot](imgs/8.png)
    3. Crear un script para aprovisionar instancias EC2 (máximo 9 instancias en total, respetando los límites de Learner Lab).
-   saber el AMI del EC2 para poder hacer la creacion
-   ![screenshot](imgs/9.png)
-   Correrlo
-   ![screenshot](imgs/10.png)
+   saber el AMI del EC2 para poder hacer la creacion  
+   ![screenshot](imgs/9.png)  
+   Correrlo  
+   ![screenshot](imgs/10.png)  
    ![screenshot](imgs/11.png)
-   4. Generar un reporte automático de uso de recursos.
+   4. Generar un reporte automático de uso de recursos.  
    ![alt text](imgs/image-1.png)
    5. Utilizar Boto3 para interactuar con AWS.
    ![screenshot](imgs/5.png)
-   6. Listar buckets en S3 y sus objetos.
+   6. Listar buckets en S3 y sus objetos.  
    ![screenshot](imgs/6.png)
 
 ### 5. Diseñar una plantilla CloudFormation
-   1. Definir infraestructura en YAML para instancias EC2 y S3, asegurando que las instancias cumplan los límites del entorno.
-   ![alt text](image-2.png)
+   1. Definir infraestructura en YAML para instancias EC2 y S3, asegurando que las instancias cumplan los límites del entorno.  
+   ![alt text](imgs/image-2.png)
    2. Aplicar políticas de IAM solo con el rol LabRole preexistente, ya que Learner Lab no permite crear nuevos roles o grupos.
    #### No aplica ya que no es learner lab 
    3. Implementar recursos en AWS mediante IaC.
@@ -99,16 +101,95 @@ sudo usermod -aG docker "$USER"
     InstanceType=t3.micro \
   --region us-east-1
    ```
-   4. Desplegar y actualizar infraestructura con AWS CloudFormation deploy.
-   ![alt text](image.png)
+   4. Desplegar y actualizar infraestructura con AWS CloudFormation deploy.  
+   ![alt text](imgs/image.png)  
+
 ### 6. Crear una imagen Docker para una aplicación web
-   1. Definir un Dockerfile con configuración de nginx o flask.
+   1. Definir un Dockerfile con configuración de nginx o flask.  
+   
+      Dockerfile: 
+      ```
+      # Stage 1: Build (dependency instalation)
+      FROM python:3.11-slim AS builder
+
+      WORKDIR /app
+      COPY requirements.txt .
+      # Instalamos dependencias en un directorio local
+      RUN pip install --user --no-cache-dir -r requirements.txt
+
+      # Stage 2: Final (light image for exec)
+      FROM python:3.11-slim
+
+      WORKDIR /app
+      # Copiamos solo las dependencias instaladas y el código
+      COPY --from=builder /root/.local /root/.local
+      COPY . .
+
+      # Asegurar que el PATH incluya las librerías instaladas
+      ENV PATH=/root/.local/bin:$PATH
+
+      EXPOSE 5000
+      CMD ["python", "app.py"]
+      ```
+
    2. Optimizar la imagen con multi-stage builds.
-   3. Configurar docker-compose.yml para múltiples servicios.
+      - docker compose up --build
+      - tenemos stage 1 y stage 2
+
+   3. Configurar docker-compose.yml para múltiples servicios.  
+      docker-compose.yml:
+      ```
+      version: '3.8'
+
+      services:
+      web:
+         build: .
+         ports:
+            - "8080:5000"
+         volumes:
+            - ./app:/app  # Hot-reloading para desarrollo
+         networks:
+            - frontend
+            - backend
+         depends_on:
+            - db
+         environment:
+            - REDIS_HOST=db
+
+      db:
+         image: redis:alpine
+         networks:
+            - backend
+         volumes:
+            - redis_data:/data
+
+      networks:
+      frontend:
+         driver: bridge
+      backend:
+         internal: true  # Red aislada para seguridad
+
+      volumes:
+      redis_data:
+      ```
    4. Definir volúmenes y redes personalizadas.
+      ```
+      [null@T480 avance_reto]$ sudo docker network ls
+      [sudo] password for null: 
+      NETWORK ID     NAME              DRIVER    SCOPE
+      08b7811756f4   bridge            bridge    local
+      ff7efc952609   docker_backend    bridge    local
+      32db7fe7059d   docker_frontend   bridge    local
+      0c6fa98669dc   host              host      local
+      0e8316485271   none              null      local
+      ```
+      ![alt text](imgs/12.png)
 
 ### 7. Implementar un pipeline CI/CD con AWS CodeCommit
-   1. Configurar CodeCommit y CodeBuild para pruebas automatizadas.
+   1. Configurar CodeCommit y CodeBuild para pruebas automatizadas.  
+      - CodeCommit y CodeBuild no están accesibles en la capa gratuita de AWS.
+      - Al no tener acceso a los learner labs, no podemos continuar con esta parte del reto.
+      ![alt text](imgs/13.png)
    2. Integrar CodePipeline para despliegue continuo.
    3. Enviar archivos a EC2 utilizando AWS Systems Manager Session Manager.
    4. Usar AWS Lambda para automatizar rollback ante fallos.

@@ -1,0 +1,30 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8080:5000"
+    volumes:
+      - ./app:/app
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - db
+    environment:
+      - REDIS_HOST=db
+
+  db:
+    image: redis:alpine
+    networks:
+      - backend
+    volumes:
+      - redis_data:/data
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    internal: true
+
+volumes:
+  redis_data:
